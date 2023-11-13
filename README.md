@@ -3,7 +3,7 @@
 [![License: MIT AND Apache-2.0](https://img.shields.io/badge/License-MIT%20AND%20Apache--2.0-blue.svg)](./LICENSE)
 [![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg)](https://github.com/RichardLitt/standard-readme)
 
-> Compute over data from data pushed to Tableland Basin with Bacalhau
+> Compute over data with Bacalhau from data pushed to Tableland Basin
 
 ## Table of Contents
 
@@ -11,7 +11,9 @@
 - [Install](#install)
   - [Docker](#docker)
 - [Usage](#usage)
-  - [Docker Compose](#docker-compose)
+  - [Docker](#docker-1)
+  - [On your Machine](#on-your-machine)
+  - [Makefile Reference](#makefile-reference)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -27,18 +29,21 @@ To set things up on your machine, you'll need to do the following:
 
 1. Run: `python -m venv env`.
 2. Source: `source env/bin/activate`
-3. Install: `pip install -r requirements.txt`
+
+Then, you can use the `Makefile` command to install dependencies: `make install`.
 
 ### Docker
 
-By default, the `main.py` script points to a custom [`dtbuchholz/wxm`](https://hub.docker.com/repository/docker/dtbuchholz/wxm/tags?page=1&ordering=last_updated) image within the Bacalhau job configuration. You can also run `docker compose` if desired.
+By default, the `main.py` script points to a custom [`dtbuchholz/wxm`](https://hub.docker.com/repository/docker/dtbuchholz/wxm/tags?page=1&ordering=last_updated) image within the Bacalhau job configuration. You can also run `docker compose` if desired, which is provided in the Makefile commands noted below.
 
 ## Usage
 
-To run the job, simply run `main.py`:
+### Docker
+
+Use `docker compose` to run it on Docker:
 
 ```sh
-python main.py
+make up
 ```
 
 This will set up the Bacalhau job, pointing to the `dtbuchholz/wxm` image, and run the job defined at `job.py`. The job will fetch data from Tableland Basin, compute over it, and return computation results. It'll log something like the following:
@@ -50,13 +55,39 @@ Job finished; results at CID: QmdKf9z6URSRwSLUrehSKXAQCU1rwBqbKvpSfPpxzQ3QFq
 // ...
 ```
 
-### Docker Compose
-
-You can run the job with `docker compose` as well:
+To stop the job, run:
 
 ```sh
-docker compose up
+make down
 ```
+
+### On your Machine
+
+Or, to run the job directly on your machine, simply run the `main.py` program:
+
+```sh
+make local
+```
+
+This assumes that any changes in your project/image have been published to the Docker Hub, so make sure you run `make publish` in order to see those changes. If you're simply trying to see how the job _should_ run from a pure data analysis perspective, you can try running the job directly on your machine, without Bacalhau involved:
+
+```sh
+make job-local
+```
+
+### Makefile Reference
+
+The following defines all commands available in the `Makefile`:
+
+- `make install`: install dependencies.
+- `make build`: build the image.
+- `make up-build`: build the image using `docker compose` with `--no-cache`.
+- `make publish`: publish the image to Docker Hub (note: the username is `dtbuchholz`, so replace with your own here as well as in the `build` step).
+- `make up`: run the image using `docker compose`.
+- `make down`: stop the image using `docker compose`.
+- `make local`: run the program on your machine using Bacalhau.
+- `make job-local`: run the program on your machine without using Bacalhau.
+- `make freeze`: freeze dependencies (only needed if you make changes to dependencies).
 
 ## Contributing
 
