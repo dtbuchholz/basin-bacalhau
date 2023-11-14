@@ -13,6 +13,7 @@
 - [Usage](#usage)
   - [Docker](#docker-1)
   - [On your Machine](#on-your-machine)
+  - [Building the Image](#building-the-image)
   - [Makefile Reference](#makefile-reference)
 - [Contributing](#contributing)
 - [License](#license)
@@ -20,8 +21,6 @@
 ## Background
 
 This project contains a simple setup wherein data pushed to Tableland Basin (replicated to Filecoin) is fetched and computed over with the [Bacalhau](https://www.bacalhau.org/) network.
-
-> Note: this is a demo project, and is not intended for production use. It is a WIP and does not contain the full suite of features noted above and simply runs a `"hello world"` job.
 
 ## Install
 
@@ -34,7 +33,7 @@ Then, you can use the `Makefile` command to install dependencies: `make install`
 
 ### Docker
 
-By default, the `main.py` script points to a custom [`dtbuchholz/wxm`](https://hub.docker.com/repository/docker/dtbuchholz/wxm/tags?page=1&ordering=last_updated) image within the Bacalhau job configuration. You can also run `docker compose` if desired, which is provided in the Makefile commands noted below.
+By default, the `main.py` script points to a custom [`dtbuchholz/basin`](https://hub.docker.com/repository/docker/dtbuchholz/basin/tags?page=1&ordering=last_updated) image within the Bacalhau job configuration. You can also run `docker compose` if desired, which is provided in the Makefile commands noted below.
 
 ## Usage
 
@@ -46,7 +45,7 @@ Use `docker compose` to run it on Docker:
 make up
 ```
 
-This will set up the Bacalhau job, pointing to the `dtbuchholz/wxm` image, and run the job defined at `job.py`. The job will fetch data from Tableland Basin, compute over it, and return computation results. It'll log something like the following:
+This will set up the Bacalhau job, pointing to the `dtbuchholz/basin` image, and run the job defined at `job.py`. The job will fetch data from Tableland Basin, compute over it, and return computation results. It'll log something like the following:
 
 ```
 Submitted job: 26a5f55f-dabd-490b-ba4b-59f14f746702
@@ -75,19 +74,42 @@ This assumes that any changes in your project/image have been published to the D
 make job-local
 ```
 
+### Building the Image
+
+The image is built using `docker buildx` for cross-platform targeting; the Bacalhau network requires an `amd64` target architecture. If you haven't already, you'll need to create a builder instance via the following, and thereafter, you can inspect it to ensure that the builder is properly set up:
+
+```sh
+make buildx-create
+make buildx-inspect
+```
+
+Then, you can build the image with:
+
+```sh
+make build
+```
+
+If you want to build the image using `docker compose` (with forced "no cache"), you can run:
+
+```sh
+make up-build
+```
+
 ### Makefile Reference
 
 The following defines all commands available in the `Makefile`:
 
 - `make install`: install dependencies.
-- `make build`: build the image.
+- `make buildx-create`: create a builder instance.
+- `make buildx-inspect`: inspect the builder instance.
+- `make build`: build the image with `buildx`.
 - `make up-build`: build the image using `docker compose` with `--no-cache`.
 - `make publish`: publish the image to Docker Hub (note: the username is `dtbuchholz`, so replace with your own here as well as in the `build` step).
 - `make up`: run the image using `docker compose`.
 - `make down`: stop the image using `docker compose`.
-- `make local`: run the program on your machine using Bacalhau.
-- `make job-local`: run the program on your machine without using Bacalhau.
-- `make freeze`: freeze dependencies (only needed if you make changes to dependencies).
+- `make local`: run the `main.py` & `job.py` programs on your machine using Bacalhau.
+- `make job-local`: run the `job.py` program on your machine without using Bacalhau.
+- `make freeze`: freeze dependencies (only needed if you make changes to the python code deps).
 
 ## Contributing
 

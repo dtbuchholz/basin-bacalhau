@@ -1,6 +1,12 @@
 env
+.env
+.env.example
 *.log
 .DS_Store
 .git
 .gitignore
 README.md
+LICENSE
+LICENSE-APACHE
+job-*
+Qm*
